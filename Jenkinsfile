@@ -6,12 +6,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/Ammarcodee/my-3tier-app.git'
-            }
-        }
-
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarqube') {
@@ -20,7 +14,7 @@ pipeline {
             }
         }
 
-        stage('Run Docker Build') {
+        stage('Build & Deploy') {
             steps {
                 sh 'docker compose up -d --build'
             }
