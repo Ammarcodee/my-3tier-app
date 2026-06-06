@@ -15,15 +15,15 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarqube') {
-                    sh " \/bin/sonar-scanner -Dsonar .projectKey=my-3tier-app -Dsonar .sources=.\
- }
- }
- }
+                    sh "${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=my-3tier-app -Dsonar.sources=."
+                }
+            }
+        }
 
- stage('Build & Deploy') {
- steps {
- sh 'sudo docker compose up -d --build'
- }
- }
- }
+        stage('Build & Deploy') {
+            steps {
+                sh 'sudo docker compose up -d --build'
+            }
+        }
+    }
 }
