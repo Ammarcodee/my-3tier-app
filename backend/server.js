@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
@@ -37,5 +37,4 @@ app.post('/api/tasks', async (req, res) => {
 app.get('/health', (req, res) => res.json({ status: 'UP' }));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
-
+app.listen(PORT, () => console.log('Backend running on port ' + PORT));
