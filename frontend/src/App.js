@@ -15,7 +15,7 @@ function App() {
         setTasks(res.data);
       }
     } catch (err) {
-      // Failed to fetch tasks
+      // Fetch error handled
     }
   }, []);
 
@@ -32,13 +32,12 @@ function App() {
     try {
       const host = window.location.hostname || "localhost";
       await axios.post(`http://${host}:5000/api/tasks`, { 
-        title: trimmedTitle,
-        status: "Pending"
+        title: trimmedTitle
       });
       setTitle("");
       await fetchTasks();
     } catch (err) {
-      // Failed to add task
+      // Add error handled
     } finally {
       setLoading(false);
     }
@@ -51,7 +50,7 @@ function App() {
       await axios.patch(`http://${host}:5000/api/tasks/${id}`);
       await fetchTasks();
     } catch (err) {
-      // Failed to toggle task
+      // Toggle error handled
     }
   };
 
@@ -62,7 +61,7 @@ function App() {
       await axios.delete(`http://${host}:5000/api/tasks/${id}`);
       await fetchTasks();
     } catch (err) {
-      // Failed to delete task
+      // Delete error handled
     }
   };
 
@@ -83,7 +82,6 @@ function App() {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Add a new task..."
             disabled={loading}
-            aria-label="New task title"
           />
           <button type="submit" disabled={loading || !title.trim()}>
             {loading ? "..." : "Add"}
@@ -93,36 +91,42 @@ function App() {
         <section className="task-list-section">
           <h2>Current Tasks ({tasks.length})</h2>
           <ul className="task-list">
-            {tasks.map((task) => (
-              <li key={task._id || Math.random()} className={`task-item ${task.status ? task.status.toLowerCase() : ""}`}>
-                <button 
-                  className="task-info-btn" 
-                  onClick={() => toggleTask(task._id)}
-                  aria-label={`Mark ${task.title} as ${task.status === "Completed" ? "pending" : "completed"}`}
-                >
-                  <span className="checkbox" aria-hidden="true">
-                    {task.status === "Completed" ? "???" : "???"}
-                  </span>
-                  <span className="task-text">{task.title}</span>
-                </button>
-                <button 
-                  className="delete-btn" 
-                  onClick={() => deleteTask(task._id)}
-                  aria-label={`Delete task ${task.title}`}
-                >
-                  ???????
-                </button>
-              </li>
-            ))}
+            {tasks.map((task, index) => {
+              const taskId = task._id || `temp-${index}`;
+              const isCompleted = task.status === "Completed";
+              return (
+                <li key={taskId} className={`task-item ${isCompleted ? "completed" : ""}`}>
+                  <button 
+                    type="button"
+                    className="task-info-btn" 
+                    onClick={() => toggleTask(task._id)}
+                    aria-label={isCompleted ? "Mark as pending" : "Mark as completed"}
+                  >
+                    <span className="checkbox-icon">
+                      {isCompleted ? "[X]" : "[ ]"}
+                    </span>
+                    <span className="task-text">{task.title}</span>
+                  </button>
+                  <button 
+                    type="button"
+                    className="delete-btn" 
+                    onClick={() => deleteTask(task._id)}
+                    aria-label="Delete task"
+                  >
+                    Delete
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </section>
       </main>
 
       <footer className="app-footer">
         <div className="status-pills">
-          <span className="pill sonar">Quality: Verified</span>
+          <span className="pill sonar">Quality: Checked</span>
           <span className="pill jenkins">Build: Automated</span>
-          <span className="pill docker">Infrastructure: Containerized</span>
+          <span className="pill docker">AWS: Running</span>
         </div>
       </footer>
     </div>

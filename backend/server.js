@@ -11,10 +11,10 @@ const MONGO_URI = process.env.MONGO_URI || "mongodb://mongodb:27017/taskdb";
 
 mongoose.connect(MONGO_URI)
   .then(() => {
-    return true; // Connection successful
+    // MongoDB Connected
   })
   .catch(() => {
-    return false; // Connection failed
+    // MongoDB Error
   });
 
 const taskSchema = new mongoose.Schema({
@@ -27,45 +27,40 @@ const Task = mongoose.model("Task", taskSchema);
 // GET all tasks
 app.get("/api/tasks", async (req, res) => {
   try {
-    const tasks = await Task.find().sort({ createdAt: -1 }).lean();
+    const tasks = await Task.find().sort({ createdAt: -1 });
     res.json(tasks);
   } catch (err) {
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Server Error" });
   }
 });
 
-// CREATE a new task
+// CREATE task
 app.post("/api/tasks", async (req, res) => {
   try {
-    const newTask = new Task({
-      title: req.body.title,
-      status: "Pending"
-    });
-    await newTask.save();
-    res.status(201).json(newTask);
+    const newTask = new Task({ title: req.body.title });
+    const savedTask = await newTask.save();
+    res.status(201).json(savedTask);
   } catch (err) {
     res.status(400).json({ error: "Bad Request" });
   }
 });
 
-// UPDATE task status
+// UPDATE status
 app.patch("/api/tasks/:id", async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
     if (!task) {
-      res.status(404).json({ error: "Not Found" });
-      return;
+      return res.status(404).json({ error: "Not Found" });
     }
-    
-    task.status = (task.status === "Pending") ? "Completed" : "Pending";
-    await task.save();
-    res.json(task);
+    task.status = task.status === "Pending" ? "Completed" : "Pending";
+    const updatedTask = await task.save();
+    return res.json(updatedTask);
   } catch (err) {
-    res.status(400).json({ error: "Update failed" });
+    return res.status(400).json({ error: "Update failed" });
   }
 });
 
-// DELETE a task
+// DELETE task
 app.delete("/api/tasks/:id", async (req, res) => {
   try {
     await Task.findByIdAndDelete(req.params.id);
@@ -79,6 +74,6 @@ app.get("/health", (req, res) => res.json({ status: "UP" }));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  // Server is running
+  // Listen active
 });
 
