@@ -11,10 +11,10 @@ const MONGO_URI = process.env.MONGO_URI || "mongodb://mongodb:27017/taskdb";
 
 mongoose.connect(MONGO_URI)
   .then(() => {
-    // Connection successful
+    return true; // Connection successful
   })
   .catch(() => {
-    // Connection failed
+    return false; // Connection failed
   });
 
 const taskSchema = new mongoose.Schema({
@@ -37,7 +37,10 @@ app.get("/api/tasks", async (req, res) => {
 // CREATE a new task
 app.post("/api/tasks", async (req, res) => {
   try {
-    const newTask = new Task(req.body);
+    const newTask = new Task({
+      title: req.body.title,
+      status: "Pending"
+    });
     await newTask.save();
     res.status(201).json(newTask);
   } catch (err) {
@@ -45,13 +48,16 @@ app.post("/api/tasks", async (req, res) => {
   }
 });
 
-// UPDATE task status (Toggle Pending/Completed)
+// UPDATE task status
 app.patch("/api/tasks/:id", async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
-    if (!task) return res.status(404).json({ error: "Task not found" });
+    if (!task) {
+      res.status(404).json({ error: "Not Found" });
+      return;
+    }
     
-    task.status = task.status === "Pending" ? "Completed" : "Pending";
+    task.status = (task.status === "Pending") ? "Completed" : "Pending";
     await task.save();
     res.json(task);
   } catch (err) {
@@ -63,7 +69,7 @@ app.patch("/api/tasks/:id", async (req, res) => {
 app.delete("/api/tasks/:id", async (req, res) => {
   try {
     await Task.findByIdAndDelete(req.params.id);
-    res.json({ message: "Task deleted" });
+    res.json({ success: true });
   } catch (err) {
     res.status(400).json({ error: "Delete failed" });
   }
@@ -73,6 +79,6 @@ app.get("/health", (req, res) => res.json({ status: "UP" }));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  // Server running
+  // Server is running
 });
 
