@@ -1,10 +1,12 @@
 ﻿import React, { useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { Clock, AlertCircle } from "lucide-react";
 import "./Schedule.css";
 
 const Schedule = () => {
+  const queryClient = useQueryClient();
+
   // Fetch Tasks
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks"],
@@ -14,6 +16,14 @@ const Schedule = () => {
       });
       return res.data;
     }
+  });
+
+  // Toggle Task Mutation
+  const toggleTaskMutation = useMutation({
+    mutationFn: (id) => axios.patch(`http://${window.location.hostname}:5000/api/tasks/${id}`, {}, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] })
   });
 
   const scheduledTasks = useMemo(() => {
@@ -45,7 +55,7 @@ const Schedule = () => {
       </header>
 
       {isLoading ? (
-        <p>Loading schedule...</p>
+        <div className="loading-state">Loading schedule...</div>
       ) : scheduledTasks.length === 0 ? (
         <div className="empty-schedule card">
           <Clock size={48} />
@@ -67,7 +77,7 @@ const Schedule = () => {
                     <div className="time-line"></div>
                     <span className="end-time">{formatDate(task.endTime)}</span>
                   </div>
-                  
+
                   <div className="timeline-content card">
                     <div className="task-header">
                       <h3>{task.title}</h3>
@@ -75,9 +85,14 @@ const Schedule = () => {
                     </div>
                     <p>{task.description || "No description provided."}</p>
                     <div className="task-footer">
-                      <span className={`status-tag ${task.status.toLowerCase().replace(" ", "-")}`}>
+                      <button 
+                        type="button"
+                        className={`status-tag-btn ${task.status.toLowerCase().replace(" ", "-")}`}
+                        onClick={() => toggleTaskMutation.mutate(task._id)}
+                        aria-label={`Mark task ${task.title} as ${task.status === "Completed" ? "pending" : "completed"}`}
+                      >
                         {task.status}
-                      </span>
+                      </button>
                       <div className="assignee-info">
                         <span>Assignee: {task.assignee?.name || "Unassigned"}</span>
                       </div>

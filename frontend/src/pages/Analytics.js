@@ -16,7 +16,7 @@ const Analytics = () => {
     }
   });
 
-  if (isLoading) return <p>Loading analytics...</p>;
+  if (isLoading) return <div className="loading-state">Syncing data...</div>;
 
   return (
     <div className="analytics-page fade-in">
@@ -42,7 +42,7 @@ const Analytics = () => {
             </thead>
             <tbody>
               {analytics?.productivity.map((p) => (
-                <tr key={p.name}>
+                <tr key={p.name || Math.random().toString()}>
                   <td className="member-cell">
                     <UserIcon size={16} />
                     <span>{p.name}</span>
@@ -64,11 +64,11 @@ const Analytics = () => {
           <div className="log-list">
             {analytics?.activityLogs.map((log) => (
               <div key={log._id} className="log-item">
-                <span className="log-action">{log.action.replace("_", " ")}</span>
+                <span className="log-action">{log.action.replace(/_/g, " ")}</span>
                 <p className="log-details">{log.details}</p>
                 <div className="log-meta">
                   <span>By: {log.user?.name || "System"}</span>
-                  <span>???</span>
+                  <span className="dot-separator">???</span>
                   <span>{new Date(log.timestamp).toLocaleString()}</span>
                 </div>
               </div>

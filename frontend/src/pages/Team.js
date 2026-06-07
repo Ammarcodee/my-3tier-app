@@ -20,7 +20,7 @@ const Team = () => {
     }
   });
 
-  const activeTeam = teams[0]; // For demo, we just use the first team
+  const activeTeam = teams[0];
 
   // Create Team Mutation
   const createTeamMutation = useMutation({
@@ -32,7 +32,7 @@ const Team = () => {
 
   // Add Member Mutation
   const addMemberMutation = useMutation({
-    mutationFn: (email) => axios.post(`http://${window.location.hostname}:5000/api/teams/${activeTeam._id}/members`, { email }, {
+    mutationFn: (memberEmail) => axios.post(`http://${window.location.hostname}:5000/api/teams/${activeTeam._id}/members`, { email: memberEmail }, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     }),
     onSuccess: () => {
@@ -43,15 +43,17 @@ const Team = () => {
 
   const handleCreateTeam = (e) => {
     e.preventDefault();
-    if (!teamName.trim()) return;
-    createTeamMutation.mutate(teamName);
+    const trimmedName = teamName.trim();
+    if (!trimmedName) return;
+    createTeamMutation.mutate(trimmedName);
     setTeamName("");
   };
 
   const handleAddMember = (e) => {
     e.preventDefault();
-    if (!email.trim() || !activeTeam) return;
-    addMemberMutation.mutate(email);
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail || !activeTeam) return;
+    addMemberMutation.mutate(trimmedEmail);
   };
 
   return (
@@ -66,13 +68,18 @@ const Team = () => {
           <h2>You don't have a team yet</h2>
           <p>Create a team to start collaborating with others.</p>
           <form onSubmit={handleCreateTeam} className="create-team-form">
+            <label htmlFor="team-name-input" className="sr-only">Team Name</label>
             <input 
+              id="team-name-input"
               type="text" 
               placeholder="Team Name (e.g. Engineering)" 
               value={teamName}
               onChange={(e) => setTeamName(e.target.value)}
+              required
             />
-            <button type="submit" className="primary-btn">Create Team</button>
+            <button type="submit" className="primary-btn" disabled={createTeamMutation.isPending}>
+              {createTeamMutation.isPending ? "Creating..." : "Create Team"}
+            </button>
           </form>
         </div>
       ) : (
@@ -80,7 +87,7 @@ const Team = () => {
           <div className="members-section card">
             <div className="section-title">
               <h2>{activeTeam.name} Members</h2>
-              <span className="badge">{activeTeam.members?.length} Members</span>
+              <span className="badge">{activeTeam.members?.length || 0} Members</span>
             </div>
             
             <div className="member-list">
@@ -107,10 +114,12 @@ const Team = () => {
 
           <div className="invite-section card">
             <h3>Invite Member</h3>
-            <p>Add a registered user to your team by their email address.</p>
+            <p>Add a registered user by email.</p>
             <form onSubmit={handleAddMember}>
               <div className="input-group">
+                <label htmlFor="member-email-input" className="sr-only">Member Email</label>
                 <input 
+                  id="member-email-input"
                   type="email" 
                   placeholder="user@example.com" 
                   value={email}
