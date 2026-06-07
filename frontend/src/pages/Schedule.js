@@ -47,6 +47,8 @@ const Schedule = () => {
     });
   };
 
+  if (isLoading) return <div className="loading-state">Building timeline...</div>;
+
   return (
     <div className="schedule-page fade-in">
       <header className="page-header">
@@ -54,14 +56,12 @@ const Schedule = () => {
         <p>Your chronological timeline of upcoming tasks.</p>
       </header>
 
-      {isLoading ? (
-        <div className="loading-state">Loading schedule...</div>
-      ) : scheduledTasks.length === 0 ? (
-        <div className="empty-schedule card">
-          <Clock size={48} />
+      {scheduledTasks.length === 0 ? (
+        <section className="empty-schedule card">
+          <Clock size={48} aria-hidden="true" />
           <h2>No tasks scheduled</h2>
           <p>Go to the Dashboard to add a task with a start and end time.</p>
-        </div>
+        </section>
       ) : (
         <div className="timeline-container">
           {scheduledTasks.map((task, index) => {
@@ -71,25 +71,25 @@ const Schedule = () => {
             return (
               <React.Fragment key={task._id}>
                 {showDay && <h3 className="timeline-day">{getDay(task.startTime)}</h3>}
-                <div className={`timeline-item ${isOverdue ? "overdue" : ""}`}>
+                <article className={`timeline-item ${isOverdue ? "overdue" : ""}`}>
                   <div className="timeline-time">
-                    <span className="start-time">{formatDate(task.startTime)}</span>
-                    <div className="time-line"></div>
-                    <span className="end-time">{formatDate(task.endTime)}</span>
+                    <time className="start-time" dateTime={task.startTime}>{formatDate(task.startTime)}</time>
+                    <div className="time-line" aria-hidden="true"></div>
+                    <time className="end-time" dateTime={task.endTime}>{formatDate(task.endTime)}</time>
                   </div>
 
                   <div className="timeline-content card">
                     <div className="task-header">
                       <h3>{task.title}</h3>
-                      {isOverdue && <span className="overdue-badge"><AlertCircle size={12} /> Overdue</span>}
+                      {isOverdue && <span className="overdue-badge"><AlertCircle size={12} aria-hidden="true" /> Overdue</span>}
                     </div>
                     <p>{task.description || "No description provided."}</p>
                     <div className="task-footer">
-                      <button 
+                      <button
                         type="button"
-                        className={`status-tag-btn ${task.status.toLowerCase().replace(" ", "-")}`}
+                        className={`status-tag-btn ${task.status.toLowerCase().replace(/\s/g, "-")}`}
                         onClick={() => toggleTaskMutation.mutate(task._id)}
-                        aria-label={`Mark task ${task.title} as ${task.status === "Completed" ? "pending" : "completed"}`}
+                        aria-label={`Toggle status for ${task.title}`}
                       >
                         {task.status}
                       </button>
@@ -98,7 +98,7 @@ const Schedule = () => {
                       </div>
                     </div>
                   </div>
-                </div>
+                </article>
               </React.Fragment>
             );
           })}

@@ -1,4 +1,4 @@
-﻿import React from "react";
+﻿import React, { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Activity, TrendingUp, User as UserIcon } from "lucide-react";
@@ -16,7 +16,15 @@ const Analytics = () => {
     }
   });
 
-  if (isLoading) return <div className="loading-state">Syncing data...</div>;
+  const productivityData = useMemo(() => {
+    return analytics?.productivity || [];
+  }, [analytics]);
+
+  const activityLogs = useMemo(() => {
+    return analytics?.activityLogs || [];
+  }, [analytics]);
+
+  if (isLoading) return <div className="loading-state">Syncing analysis...</div>;
 
   return (
     <div className="analytics-page fade-in">
@@ -26,9 +34,9 @@ const Analytics = () => {
       </header>
 
       <div className="analytics-grid">
-        <div className="productivity-section card">
+        <section className="productivity-section card">
           <div className="card-header">
-            <TrendingUp size={20} />
+            <TrendingUp size={20} aria-hidden="true" />
             <h2>Team Productivity</h2>
           </div>
           <p className="card-subtitle">Tasks completed per team member.</p>
@@ -36,45 +44,45 @@ const Analytics = () => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Member</th>
-                <th className="text-right">Completed Tasks</th>
+                <th scope="col">Member</th>
+                <th scope="col" className="text-right">Completed Tasks</th>
               </tr>
             </thead>
             <tbody>
-              {analytics?.productivity.map((p) => (
-                <tr key={p.name || Math.random().toString()}>
+              {productivityData.map((p, index) => (
+                <tr key={p.name || `member-${index}`}>
                   <td className="member-cell">
-                    <UserIcon size={16} />
-                    <span>{p.name}</span>
+                    <UserIcon size={16} aria-hidden="true" />
+                    <span>{p.name || "Unknown Member"}</span>
                   </td>
                   <td className="text-right font-bold">{p.tasksCompleted}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </section>
 
-        <div className="activity-section card">
+        <section className="activity-section card">
           <div className="card-header">
-            <Activity size={20} />
+            <Activity size={20} aria-hidden="true" />
             <h2>Live Activity Log</h2>
           </div>
           <p className="card-subtitle">Recent actions performed in the workspace.</p>
           
           <div className="log-list">
-            {analytics?.activityLogs.map((log) => (
-              <div key={log._id} className="log-item">
-                <span className="log-action">{log.action.replace(/_/g, " ")}</span>
+            {activityLogs.map((log) => (
+              <article key={log._id} className="log-item">
+                <span className="log-action">{log.action ? log.action.replace(/_/g, " ") : "Action"}</span>
                 <p className="log-details">{log.details}</p>
                 <div className="log-meta">
                   <span>By: {log.user?.name || "System"}</span>
-                  <span className="dot-separator">???</span>
-                  <span>{new Date(log.timestamp).toLocaleString()}</span>
+                  <span className="dot-separator" aria-hidden="true">???</span>
+                  <time dateTime={log.timestamp}>{new Date(log.timestamp).toLocaleString()}</time>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );

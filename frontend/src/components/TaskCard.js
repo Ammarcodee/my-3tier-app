@@ -17,32 +17,38 @@ const TaskCard = ({ task, onToggle, onDelete }) => {
   });
 
   return (
-    <div className={`task-card ${task.status === "Completed" ? "completed" : ""}`}>
+    <article className={`task-card ${task.status === "Completed" ? "completed" : ""}`}>
       <div className="task-main">
         <input 
           type="checkbox" 
           checked={task.status === "Completed"} 
           onChange={() => onToggle(task._id)}
           className="task-checkbox"
+          aria-label={`Mark ${task.title} as completed`}
         />
         <div className="task-content">
           <h3 className="task-title">{task.title}</h3>
           <div className="task-meta">
-            <span className="priority-pill" style={{ backgroundColor: priorityColors[task.priority] }}>
+            <span className="priority-pill" style={{ backgroundColor: priorityColors[task.priority] || "var(--text-muted)" }}>
               {task.priority}
             </span>
             <div className="timestamp">
-              <Clock size={14} />
-              <span>{formattedDate}</span>
+              <Clock size={14} aria-hidden="true" />
+              <time dateTime={task.createdAt}>{formattedDate}</time>
             </div>
           </div>
         </div>
       </div>
       
-      <button onClick={() => onDelete(task._id)} className="delete-task-btn">
-        <Trash2 size={18} />
+      <button 
+        type="button"
+        onClick={() => onDelete(task._id)} 
+        className="delete-task-btn"
+        aria-label={`Delete task ${task.title}`}
+      >
+        <Trash2 size={18} aria-hidden="true" />
       </button>
-    </div>
+    </article>
   );
 };
 

@@ -10,7 +10,7 @@ const Team = () => {
   const [teamName, setTeamName] = useState("");
 
   // Fetch Teams
-  const { data: teams = [] } = useQuery({
+  const { data: teams = [], isLoading } = useQuery({
     queryKey: ["teams"],
     queryFn: async () => {
       const res = await axios.get(`http://${window.location.hostname}:5000/api/teams/my`, {
@@ -32,7 +32,7 @@ const Team = () => {
 
   // Add Member Mutation
   const addMemberMutation = useMutation({
-    mutationFn: (memberEmail) => axios.post(`http://${window.location.hostname}:5000/api/teams/${activeTeam._id}/members`, { email: memberEmail }, {
+    mutationFn: (memberEmail) => axios.post(`http://${window.location.hostname}:5000/api/teams/${activeTeam?._id}/members`, { email: memberEmail }, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     }),
     onSuccess: () => {
@@ -56,6 +56,8 @@ const Team = () => {
     addMemberMutation.mutate(trimmedEmail);
   };
 
+  if (isLoading) return <div className="loading-state">Loading team...</div>;
+
   return (
     <div className="team-page fade-in">
       <header className="page-header">
@@ -64,7 +66,7 @@ const Team = () => {
       </header>
 
       {!activeTeam ? (
-        <div className="empty-team-state card">
+        <section className="empty-team-state card">
           <h2>You don't have a team yet</h2>
           <p>Create a team to start collaborating with others.</p>
           <form onSubmit={handleCreateTeam} className="create-team-form">
@@ -81,10 +83,10 @@ const Team = () => {
               {createTeamMutation.isPending ? "Creating..." : "Create Team"}
             </button>
           </form>
-        </div>
+        </section>
       ) : (
         <div className="team-grid">
-          <div className="members-section card">
+          <section className="members-section card">
             <div className="section-title">
               <h2>{activeTeam.name} Members</h2>
               <span className="badge">{activeTeam.members?.length || 0} Members</span>
@@ -92,9 +94,9 @@ const Team = () => {
             
             <div className="member-list">
               {activeTeam.members?.map((member) => (
-                <div key={member._id} className="member-item">
+                <article key={member._id} className="member-item">
                   <div className="member-avatar">
-                    <UserIcon size={20} />
+                    <UserIcon size={20} aria-hidden="true" />
                   </div>
                   <div className="member-info">
                     <span className="member-name">{member.name}</span>
@@ -102,17 +104,17 @@ const Team = () => {
                   </div>
                   <div className="member-role">
                     {activeTeam.admin === member._id ? (
-                      <span className="role-badge admin"><Shield size={12} /> Admin</span>
+                      <span className="role-badge admin"><Shield size={12} aria-hidden="true" /> Admin</span>
                     ) : (
                       <span className="role-badge member">Member</span>
                     )}
                   </div>
-                </div>
+                </article>
               ))}
             </div>
-          </div>
+          </section>
 
-          <div className="invite-section card">
+          <aside className="invite-section card">
             <h3>Invite Member</h3>
             <p>Add a registered user by email.</p>
             <form onSubmit={handleAddMember}>
@@ -132,14 +134,14 @@ const Team = () => {
                 className="invite-btn"
                 disabled={addMemberMutation.isPending}
               >
-                <UserPlus size={18} />
+                <UserPlus size={18} aria-hidden="true" />
                 <span>{addMemberMutation.isPending ? "Adding..." : "Add to Team"}</span>
               </button>
             </form>
             {addMemberMutation.isError && (
               <p className="error-text">{addMemberMutation.error.response?.data?.error || "Failed to add member"}</p>
             )}
-          </div>
+          </aside>
         </div>
       )}
     </div>
