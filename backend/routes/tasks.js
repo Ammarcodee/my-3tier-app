@@ -3,15 +3,16 @@ const router = express.Router();
 const auth = require("../middleware/auth");
 const Task = require("../models/Task");
 const ActivityLog = require("../models/ActivityLog");
-const User = require("../models/User");
 
 // @route   GET api/tasks
-// @desc    Get all tasks for a user
+// @desc    Get all tasks for a user or their teams
 router.get("/", auth, async (req, res) => {
   try {
     const tasks = await Task.find({ 
       $or: [{ author: req.user.id }, { assignee: req.user.id }] 
-    }).populate("assignee author", "name email").sort({ createdAt: -1 });
+    })
+    .populate("assignee author team", "name email")
+    .sort({ createdAt: -1 });
     res.json(tasks);
   } catch (err) {
     res.status(500).json({ error: "Server error" });
@@ -21,14 +22,17 @@ router.get("/", auth, async (req, res) => {
 // @route   POST api/tasks
 // @desc    Create a task
 router.post("/", auth, async (req, res) => {
-  const { title, description, priority, dueDate, assignee } = req.body;
+  const { title, description, priority, dueDate, startTime, endTime, assignee, team } = req.body;
   try {
     const newTask = new Task({
       title,
       description,
       priority,
       dueDate,
+      startTime,
+      endTime,
       assignee,
+      team,
       author: req.user.id
     });
     const savedTask = await newTask.save();
@@ -57,7 +61,17 @@ router.patch("/:id", auth, async (req, res) => {
 
     // Update fields
     const updates = req.body;
+    
+    // Check if toggling completion
+    const wasCompleted = task.status === "Completed";
+    
     Object.keys(updates).forEach(key => task[key] = updates[key]);
+    
+    // If just toggling via simple checkbox from old UI
+    if (Object.keys(updates).length === 0) {
+        task.status = wasCompleted ? "Pending" : "Completed";
+    }
+
     await task.save();
 
     // Log activity

@@ -1,0 +1,174 @@
+﻿.team-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-header {
+  margin-bottom: 40px;
+}
+
+.card {
+  background: white;
+  padding: 32px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+}
+
+.empty-team-state {
+  text-align: center;
+  max-width: 500px;
+  margin: 100px auto;
+}
+
+.create-team-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.create-team-form input {
+  padding: 14px 20px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-family: inherit;
+  outline: none;
+}
+
+.create-team-form input:focus {
+  border-color: var(--primary);
+}
+
+.primary-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 32px;
+}
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.badge {
+  background: #F1F5F9;
+  color: var(--text-muted);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.member-item:hover {
+  background: #F8FAFC;
+}
+
+.member-avatar {
+  width: 44px;
+  height: 44px;
+  background: #EEF2FF;
+  color: var(--primary);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.member-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.member-name {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.member-email {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.role-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.role-badge.admin {
+  background: #FEF2F2;
+  color: #EF4444;
+}
+
+.role-badge.member {
+  background: #F1F5F9;
+  color: var(--text-muted);
+}
+
+.invite-section h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.invite-section p {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.invite-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 16px;
+}
+
+.error-text {
+  color: #EF4444;
+  font-size: 0.875rem;
+  margin-top: 12px;
+  font-weight: 500;
+}
+

@@ -21,6 +21,8 @@ mongoose.connect(MONGO_URI)
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/tasks", require("./routes/tasks"));
 app.use("/api/users", require("./routes/users"));
+app.use("/api/teams", require("./routes/teams"));
+app.use("/api/analytics", require("./routes/analytics"));
 
 app.get("/health", (req, res) => res.json({ status: "UP" }));
 

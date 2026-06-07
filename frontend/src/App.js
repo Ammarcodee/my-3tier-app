@@ -6,13 +6,16 @@ import Sidebar from "./components/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Team from "./pages/Team";
+import Schedule from "./pages/Schedule";
+import Analytics from "./pages/Analytics";
 import "./App.css";
 
 const queryClient = new QueryClient();
 
 const PrivateRoute = ({ children }) => {
   const { token, loading } = useAuth();
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="loading-screen">Loading...</div>;
   return token ? children : <Navigate to="/login" />;
 };
 
@@ -27,7 +30,9 @@ const AppContent = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-          {/* Add other routes as needed */}
+          <Route path="/team" element={<PrivateRoute><Team /></PrivateRoute>} />
+          <Route path="/schedule" element={<PrivateRoute><Schedule /></PrivateRoute>} />
+          <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>
@@ -35,11 +40,11 @@ const AppContent = () => {
       {token && (
         <footer className="status-footer">
           <div className="status-pills">
-            <span className="pill sonar">Quality: Checked</span>
+            <span className="pill sonar">Quality: Verified</span>
             <span className="pill jenkins">Build: Automated</span>
             <span className="pill docker">AWS: Running</span>
           </div>
-        </footer >
+        </footer>
       )}
     </div>
   );

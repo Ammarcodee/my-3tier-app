@@ -1,0 +1,124 @@
+﻿.schedule-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-schedule {
+  text-align: center;
+  padding: 80px;
+  color: var(--text-muted);
+  max-width: 500px;
+  margin: 50px auto;
+}
+
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.timeline-day {
+  font-family: 'Fraunces';
+  font-size: 1.5rem;
+  margin-top: 40px;
+  margin-bottom: 20px;
+  color: var(--primary);
+  border-bottom: 2px solid #EEF2FF;
+  padding-bottom: 12px;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 32px;
+}
+
+.timeline-time {
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.start-time {
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 1.1rem;
+}
+
+.end-time {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.time-line {
+  width: 2px;
+  flex: 1;
+  background: #E2E8F0;
+  margin-right: 24px;
+}
+
+.timeline-content {
+  flex: 1;
+  padding: 24px !important;
+}
+
+.timeline-item.overdue .timeline-content {
+  border-color: #FECACA;
+  background: #FFF5F5;
+}
+
+.overdue-badge {
+  background: #EF4444;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.task-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.timeline-content p {
+  color: var(--text-muted);
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.task-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  text-transform: uppercase;
+}
+
+.status-tag.pending { background: #FEF3C7; color: #92400E; }
+.status-tag.in-progress { background: #DBEAFE; color: #1E40AF; }
+.status-tag.completed { background: #D1FAE5; color: #065F46; }
+
+.assignee-info {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
