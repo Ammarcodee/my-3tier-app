@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import StatsRow from "../components/StatsRow";
 import TaskCard from "../components/TaskCard";
-import { Plus } from "lucide-react";
+import { Plus, LayoutGrid, List, PlusCircle } from "lucide-react";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -28,7 +28,7 @@ const Dashboard = () => {
     }
   });
 
-  // Fetch Teams (to get potential assignees)
+  // Fetch Teams
   const { data: teams = [] } = useQuery({
     queryKey: ["teams"],
     queryFn: async () => {
@@ -39,7 +39,6 @@ const Dashboard = () => {
     }
   });
 
-  // Flat list of all unique members across user's teams
   const teamMembers = useMemo(() => {
     const members = new Map();
     teams.forEach(team => {
@@ -48,7 +47,6 @@ const Dashboard = () => {
     return Array.from(members.values());
   }, [teams]);
 
-  // Create Task Mutation
   const createTaskMutation = useMutation({
     mutationFn: (newTask) => axios.post(`http://${window.location.hostname}:5000/api/tasks`, newTask, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
@@ -56,7 +54,6 @@ const Dashboard = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] })
   });
 
-  // Toggle Task Mutation
   const toggleTaskMutation = useMutation({
     mutationFn: (id) => axios.patch(`http://${window.location.hostname}:5000/api/tasks/${id}`, {}, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
@@ -64,7 +61,6 @@ const Dashboard = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] })
   });
 
-  // Delete Task Mutation
   const deleteTaskMutation = useMutation({
     mutationFn: (id) => axios.delete(`http://${window.location.hostname}:5000/api/tasks/${id}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
@@ -100,7 +96,7 @@ const Dashboard = () => {
       startTime: newTaskStartTime || undefined,
       endTime: newTaskEndTime || undefined,
       assignee: newTaskAssignee || undefined,
-      team: teams[0]?._id // For demo, we just assign to the first team
+      team: teams[0]?._id
     });
 
     setNewTaskTitle("");
@@ -113,13 +109,13 @@ const Dashboard = () => {
     <div className="dashboard fade-in">
       <header className="dashboard-header">
         <div>
-          <h1>Welcome Back!</h1>
+          <h1 className="fraunces">Welcome Back!</h1>
           <p className="date-display">{new Date().toLocaleDateString("en-US", { weekday: 'long', month: 'long', day: 'numeric' })}</p>
         </div>
         <div className="header-actions">
-          <div className="progress-container">
+          <div className="progress-card">
             <div className="progress-info">
-              <span>Overall Progress</span>
+              <span>Workspace Progress</span>
               <span>{Math.round(progress)}%</span>
             </div>
             <div className="progress-bar-bg">
@@ -131,27 +127,30 @@ const Dashboard = () => {
 
       <StatsRow stats={stats} />
 
-      <section className="task-section">
-        <div className="section-header">
-          <div className="filter-tabs">
-            {["All", "Active", "Done"].map(tab => (
-              <button 
-                key={tab} 
-                onClick={() => setFilter(tab)}
-                className={`tab-btn ${filter === tab ? "active" : ""}`}
-              >
-                {tab}
-              </button>
-            ))}
+      <div className="dashboard-layout">
+        <div className="main-feed">
+          <div className="feed-header">
+            <div className="filter-tabs">
+              {["All", "Active", "Done"].map(tab => (
+                <button 
+                  key={tab} 
+                  onClick={() => setFilter(tab)}
+                  className={`tab-btn ${filter === tab ? "active" : ""}`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="dashboard-grid">
-          <div className="task-list-container">
+          <div className="task-feed">
             {isLoading ? (
-              <p>Loading tasks...</p>
+              <div className="loading-state">Syncing tasks...</div>
             ) : filteredTasks.length === 0 ? (
-              <div className="empty-state">No tasks found in this category.</div>
+              <div className="empty-state">
+                <LayoutGrid size={48} />
+                <p>No tasks found in "{filter}"</p>
+              </div>
             ) : (
               filteredTasks.map(task => (
                 <TaskCard 
@@ -163,23 +162,29 @@ const Dashboard = () => {
               ))
             )}
           </div>
+        </div>
 
-          <div className="add-task-panel">
-            <div className="add-task-card card">
-              <h3>Create Task</h3>
-              <form onSubmit={handleAddTask} className="enhanced-form">
-                <div className="input-group">
-                  <label>Title</label>
-                  <input 
-                    type="text" 
-                    placeholder="Task name" 
-                    value={newTaskTitle}
-                    onChange={(e) => setNewTaskTitle(e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div className="input-group">
+        <aside className="action-sidebar">
+          <div className="create-task-container card">
+            <div className="create-header">
+              <PlusCircle size={20} />
+              <h2>New Task</h2>
+            </div>
+            
+            <form onSubmit={handleAddTask} className="create-form">
+              <div className="form-field">
+                <label>Title</label>
+                <input 
+                  type="text" 
+                  placeholder="Summarize the task..." 
+                  value={newTaskTitle}
+                  onChange={(e) => setNewTaskTitle(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="form-row">
+                <div className="form-field">
                   <label>Priority</label>
                   <select value={newTaskPriority} onChange={(e) => setNewTaskPriority(e.target.value)}>
                     <option value="Low">Low</option>
@@ -188,44 +193,42 @@ const Dashboard = () => {
                   </select>
                 </div>
 
-                <div className="input-group">
+                <div className="form-field">
                   <label>Assignee</label>
                   <select value={newTaskAssignee} onChange={(e) => setNewTaskAssignee(e.target.value)}>
-                    <option value="">Select Member</option>
+                    <option value="">Self</option>
                     {teamMembers.map(m => (
                       <option key={m._id} value={m._id}>{m.name}</option>
                     ))}
                   </select>
                 </div>
+              </div>
 
-                <div className="time-group">
-                  <div className="input-group">
-                    <label>Start Time</label>
-                    <input 
-                      type="datetime-local" 
-                      value={newTaskStartTime}
-                      onChange={(e) => setNewTaskStartTime(e.target.value)}
-                    />
-                  </div>
-                  <div className="input-group">
-                    <label>End Time</label>
-                    <input 
-                      type="datetime-local" 
-                      value={newTaskEndTime}
-                      onChange={(e) => setNewTaskEndTime(e.target.value)}
-                    />
-                  </div>
-                </div>
+              <div className="form-field">
+                <label>Schedule Start</label>
+                <input 
+                  type="datetime-local" 
+                  value={newTaskStartTime}
+                  onChange={(e) => setNewTaskStartTime(e.target.value)}
+                />
+              </div>
 
-                <button type="submit" className="add-btn" disabled={createTaskMutation.isPending}>
-                  <Plus size={20} />
-                  <span>{createTaskMutation.isPending ? "Adding..." : "Add Task"}</span>
-                </button>
-              </form>
-            </div>
+              <div className="form-field">
+                <label>Target Deadline</label>
+                <input 
+                  type="datetime-local" 
+                  value={newTaskEndTime}
+                  onChange={(e) => setNewTaskEndTime(e.target.value)}
+                />
+              </div>
+
+              <button type="submit" className="submit-task-btn" disabled={createTaskMutation.isPending}>
+                {createTaskMutation.isPending ? "Creating..." : "Launch Task"}
+              </button>
+            </form>
           </div>
-        </div>
-      </section>
+        </aside>
+      </div>
     </div>
   );
 };
